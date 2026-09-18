@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: US-Mexico Remittances API
+  version: "1.0.0"
+  description: |
+    Open, keyless API for remittance flows between the United States and Mexico.
+
+    Mexican state and municipal figures come from Banco de Mexico through the
+    DataMexico cube. US state-of-origin figures come from the Banco de Mexico
+    SIE API and lag the Mexican series by a quarter or two, so the two sides of
+    the corridor can end on different periods. All amounts are current USD.
+
+    Every endpoint accepts `format=csv` and sends permissive CORS headers.
+  license:
+    name: MIT
+    url: https://github.com/jp-pietrini/remittances-api-mcp/blob/main/LICENSE
+  contact:
+    name: Juan Pablo Pietrini Sánchez
+    email: jpietrin@stanford.edu
+servers:
+  - url: https://remittances.mx
+    description: Production
+  - url: http://localhost:3000
+    description: Local dev server
+tags:
+  - name: metadata
+  - name: mexico
+  - name: united-states
+paths:
+  /api/v1/meta:
+    get:
+      tags: [metadata]
+      summary: Coverage, sources, citation and endpoint list
+      parameters:
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: Dataset metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name: { type: string }
+                  version: { type: string }
+                  coverage: { type: object }
+                  sources:
+                    type: array
+                    items: { type: object }
+                  endpoints:
+                    type: array
+                    items: { type: object }
+  /api/v1/national:
+    get:
+      tags: [mexico]
+      summary: National totals received by Mexico
+      parameters:
+        - $ref: '#/components/parameters/freqYearlyDefault'
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: One row per period
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Collection'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/PeriodTotal' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+  /api/v1/mexico/states:
+    get:
+      tags: [mexico]
+      summary: All 32 states for one period, ranked by amount received
+      parameters:
+        - $ref: '#/components/parameters/year'
+        - $ref: '#/components/parameters/quarter'
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: One row per state
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Collection'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/StateAmount' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+  /api/v1/mexico/states/timeseries:
+    get:
+      tags: [mexico]
+      summary: Full series for one state, or for every state
+      parameters:
+        - name: state
+          in: query
+          description: Exact state name, e.g. "Michoacán de Ocampo". Omit for all states.
+          schema: { type: string }
+        - $ref: '#/components/parameters/freqQuarterlyDefault'
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: One row per state and period
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Collection'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/StateAmount' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+  /api/v1/mexico/municipalities:
+    get:
+      tags: [mexico]
+      summary: Municipalities for one year, ranked by amount received
+      description: Municipal figures are published annually only.
+      parameters:
+        - $ref: '#/components/parameters/year'
+        - name: state
+          in: query
+          description: Restrict to one state
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100, maximum: 2500, minimum: 1 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0, minimum: 0 }
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: One row per municipality
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Collection'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/MunicipalityAmount' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+  /api/v1/us/states:
+    get:
+      tags: [united-states]
+      summary: US sending states for one period, with Mexican-born population
+      parameters:
+        - $ref: '#/components/parameters/year'
+        - $ref: '#/components/parameters/quarter'
+        - $ref: '#/components/parameters/format'
+      responses:
+        "200":
+          description: One row per US state
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Collection'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/UsStateAmount' }
+        "400": { $ref: '#/components/responses/BadRequest' }
+components:
+  parameters:
+    year:
+      name: year
+      in: query
+      required: true
+      description: Calendar year, e.g. 2025
+      schema: { type: integer, example: 2025 }
+    quarter:
+      name: quarter
+      in: query
+      description: Omit for the annual total
+      schema: { type: string, enum: [Q1, Q2, Q3, Q4] }
+    freqYearlyDefault:
+      name: freq
+      in: query
+      schema: { type: string, enum: [yearly, quarterly], default: yearly }
+    freqQuarterlyDefault:
+      name: freq
+      in: query
+      schema: { type: string, enum: [yearly, quarterly], default: quarterly }
+    format:
+      name: format
+      in: query
+      description: Response format
+      schema: { type: string, enum: [json, csv], default: json }
+  schemas:
+    Collection:
+      type: object
+      properties:
+        count: { type: integer }
+        unit: { type: string, const: USD }
+        data: { type: array, items: { type: object } }
+    PeriodTotal:
+      type: object
+      properties:
+        period: { type: string, examples: ["2025", "2025-Q4"] }
+        amount_usd: { type: integer }
+    StateAmount:
+      type: object
+      properties:
+        state: { type: string, examples: ["Jalisco"] }
+        period: { type: string, examples: ["2025"] }
+        amount_usd: { type: integer }
+    MunicipalityAmount:
+      type: object
+      properties:
+        code: { type: string, examples: ["MX14039"] }
+        municipality: { type: string, examples: ["Guadalajara"] }
+        state: { type: string, examples: ["Jalisco"] }
+        year: { type: integer }
+        amount_usd: { type: integer }
+    UsStateAmount:
+      type: object
+      properties:
+        state: { type: string, examples: ["California"] }
+        period: { type: string }
+        amount_usd: { type: integer }
+        mexican_born_population: { type: [integer, "null"] }
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid or unknown parameter
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

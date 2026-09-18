@@ -1,0 +1,40 @@
+{
+  "name": "remittances-api-mcp",
+  "version": "1.0.0",
+  "description": "MCP server and open API for US-Mexico remittance data from Banco de Mexico",
+  "type": "module",
+  "license": "MIT",
+  "author": "Juan Pablo Pietrini Sánchez <jpietrin@stanford.edu>",
+  "homepage": "https://remittances.mx/dashboard/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jp-pietrini/remittances-api-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "remittances",
+    "mexico",
+    "open-data",
+    "banxico",
+    "migration"
+  ],
+  "bin": {
+    "remittances-mcp": "src/server.mjs"
+  },
+  "main": "src/server.mjs",
+  "files": [
+    "src",
+    "api",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node src/server.mjs",
+    "smoke": "node test/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
