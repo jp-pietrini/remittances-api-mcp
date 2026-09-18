@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: Remittances API + MCP
+message: >-
+  If you use this software or the data it serves, please cite both this
+  repository and the US-Mexico Remittances Dashboard.
+type: software
+authors:
+  - given-names: Juan Pablo
+    family-names: Pietrini Sánchez
+    email: jpietrin@stanford.edu
+    affiliation: Stanford University
+repository-code: https://github.com/jp-pietrini/remittances-api-mcp
+url: https://remittances.mx/dashboard/api
+abstract: >-
+  Open REST API and Model Context Protocol server for remittance flows between
+  the United States and Mexico. Serves quarterly Banco de Mexico data for 32
+  Mexican states and 2,488 municipalities, plus US states of origin and the
+  Mexican-born population behind the flows.
+keywords:
+  - remittances
+  - Mexico
+  - migration
+  - open data
+  - model context protocol
+license: MIT
+references:
+  - type: database
+    title: US-Mexico Remittances Dashboard
+    authors:
+      - given-names: Juan Pablo
+        family-names: Pietrini Sánchez
+    url: https://remittances.mx
