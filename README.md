@@ -87,6 +87,9 @@ df = pd.read_csv(
 | `GET /api/v1/mexico/municipalities` | `year` (required), `state`, `limit`, `offset`, `format` |
 | `GET /api/v1/us/states` | `year` (required), `quarter`, `format` |
 
+Runnable examples live in [`examples/`](examples): `quickstart.sh` (curl),
+`quickstart.mjs` (Node 18+, no dependencies) and `quickstart.py` (pandas).
+
 Full description in [`api/openapi.yaml`](api/openapi.yaml). Every endpoint
 accepts `format=csv` and sends permissive CORS headers, so a browser or
 notebook can call it directly.
