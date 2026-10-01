@@ -15,6 +15,7 @@
 const BASE = (process.env.REMITTANCES_API_BASE || 'https://remittances.mx').replace(/\/$/, '')
 const SERVER_INFO = { name: 'remittances', version: '1.0.0' }
 const PROTOCOL_VERSION = '2024-11-05'
+const REQUEST_TIMEOUT_MS = 30_000
 
 const TOOLS = [
   {
@@ -123,8 +124,20 @@ async function callTool(name, args) {
   if (!tool) throw new Error(`Unknown tool: ${name}`)
 
   const url = `${BASE}${tool.path(args || {})}`
-  const response = await fetch(url, { headers: { Accept: 'application/json' } })
-  const body = await response.text()
+  let response
+  let body
+  try {
+    response = await fetch(url, {
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    })
+    body = await response.text()
+  } catch (err) {
+    return {
+      content: [{ type: 'text', text: `Request to ${url} failed: ${err.message}` }],
+      isError: true,
+    }
+  }
 
   if (!response.ok) {
     return {
