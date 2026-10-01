@@ -6,7 +6,7 @@
  * pull remittance tables directly. Speaks JSON-RPC 2.0 over stdio and has no
  * dependencies, so it runs with plain `node`.
  *
- *   claude mcp add remittances -- node /absolute/path/to/mcp/remittances-mcp.mjs
+ *   claude mcp add remittances -- node /absolute/path/to/remittances-api-mcp/src/server.mjs
  *
  * Set REMITTANCES_API_BASE to point at a different deployment
  * (default: https://remittances.mx).
