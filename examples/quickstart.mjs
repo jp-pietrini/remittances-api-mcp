@@ -13,7 +13,8 @@ async function get(path) {
 }
 
 const meta = await get('/api/v1/meta')
-console.log('Endpoints:', Object.keys(meta.endpoints ?? meta).slice(0, 6).join(', '))
+console.log(`Mexico series: ${meta.coverage.mexico.first_quarter} to ${meta.coverage.mexico.last_quarter}`)
+console.log(`US series:     ${meta.coverage.united_states.first_quarter} to ${meta.coverage.united_states.last_quarter}`)
 
 const national = await get('/api/v1/national?freq=yearly')
 const rows = national.data ?? national
