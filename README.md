@@ -1,5 +1,7 @@
 # Remittances API + MCP
 
+[![CI](https://github.com/jp-pietrini/remittances-api-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/jp-pietrini/remittances-api-mcp/actions/workflows/ci.yml)
+
 Open API and MCP server for remittance flows between the United States and
 Mexico: **$62.5B received in 2025**, broken down by 32 Mexican states, 2,488
 municipalities and 51 US states of origin, quarterly from 2013.
