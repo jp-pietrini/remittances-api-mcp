@@ -61,6 +61,18 @@ Check it works:
 npm run smoke
 ```
 
+### Troubleshooting
+
+- **Tool returns `Invalid arguments`**: the server checks arguments before
+  calling the API. `year` is required for the state, municipality and US tools
+  and must be an integer; `quarter` must be `Q1`-`Q4`.
+- **`Request to ... failed`**: the API was unreachable or took longer than 30
+  seconds. Check your network, or `REMITTANCES_API_BASE` if you set it.
+- **Server not listed in your client**: confirm the path to `src/server.mjs` is
+  absolute and that `node --version` is 18 or newer, then run `npm run smoke`.
+- **A state name returns nothing**: use the exact name from `get_mexico_states`
+  (for example `Michoacán de Ocampo`).
+
 ## Use it from code (REST)
 
 ```bash
