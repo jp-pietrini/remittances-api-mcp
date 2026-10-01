@@ -119,9 +119,32 @@ const TOOLS = [
 
 const toolByName = new Map(TOOLS.map((t) => [t.name, t]))
 
+function validateArguments(tool, args) {
+  const { properties = {}, required = [] } = tool.inputSchema
+  for (const key of required) {
+    if (args[key] === undefined) return `Missing required argument "${key}"`
+  }
+  for (const [key, value] of Object.entries(args)) {
+    const spec = properties[key]
+    if (!spec) return `Unknown argument "${key}"`
+    if (spec.type === 'integer' && !Number.isInteger(value)) {
+      return `Argument "${key}" must be an integer`
+    }
+    if (spec.enum && !spec.enum.includes(value)) {
+      return `Argument "${key}" must be one of: ${spec.enum.join(', ')}`
+    }
+  }
+  return null
+}
+
 async function callTool(name, args) {
   const tool = toolByName.get(name)
   if (!tool) throw new Error(`Unknown tool: ${name}`)
+
+  const problem = validateArguments(tool, args || {})
+  if (problem) {
+    return { content: [{ type: 'text', text: `Invalid arguments for ${name}: ${problem}` }], isError: true }
+  }
 
   const url = `${BASE}${tool.path(args || {})}`
   let response
